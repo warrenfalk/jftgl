@@ -6,9 +6,9 @@ import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.java.games.jogl.GL;
-import net.java.games.jogl.GLU;
-import net.java.games.jogl.GLUtesselator;
+import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.glu.GLUtessellator;
+
 import net.sourceforge.ftgl.glyph.FTExtrdGlyph;
 import net.sourceforge.ftgl.glyph.FTOutlineGlyph;
 import net.sourceforge.ftgl.glyph.FTPolyGlyph;
@@ -48,8 +48,6 @@ public class FTVectoriser
 	 */
 	private FTMesh mesh = null;
 
-	private GLU glu;
-
 	private float stepSize;
 
 	/**
@@ -88,16 +86,6 @@ public class FTVectoriser
 	}
 
 	/**
-	 * TODO: Doc
-	 * @param gl
-	 * @param glu
-	 */
-	public void setGLGLU(GL gl, GLU glu)
-	{
-		this.glu = glu;
-	}
-
-	/**
 	 * Build an FTMesh from the vector outline data.
 	 */
 	public void makeMesh()
@@ -119,50 +107,50 @@ public class FTVectoriser
 
 		this.mesh = new FTMesh();
 
-		GLUtesselator tobj = this.glu.gluNewTess();
+		GLUtessellator tobj = GLU.gluNewTess();
 		FTTesselatorCallback callback = new FTTesselatorCallback();
 
-		this.glu.gluTessCallback(tobj, GLU.GLU_TESS_BEGIN_DATA, callback);
-		this.glu.gluTessCallback(tobj, GLU.GLU_TESS_VERTEX_DATA, callback);
-		this.glu.gluTessCallback(tobj, GLU.GLU_TESS_COMBINE_DATA, callback);
-		this.glu.gluTessCallback(tobj, GLU.GLU_TESS_END_DATA, callback);
-		this.glu.gluTessCallback(tobj, GLU.GLU_TESS_ERROR_DATA, callback);
+		tobj.gluTessCallback(GLU.GLU_TESS_BEGIN_DATA, callback);
+		tobj.gluTessCallback(GLU.GLU_TESS_VERTEX_DATA, callback);
+		tobj.gluTessCallback(GLU.GLU_TESS_COMBINE_DATA, callback);
+		tobj.gluTessCallback(GLU.GLU_TESS_END_DATA, callback);
+		tobj.gluTessCallback(GLU.GLU_TESS_ERROR_DATA, callback);
 
 		//if( contourFlag && ft_outline_even_odd_fill) // ft_outline_reverse_fill
 		if (this.contourFlag == PathIterator.WIND_EVEN_ODD)
 		{
-			this.glu.gluTessProperty(tobj, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_NONZERO);
+			tobj.gluTessProperty(GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_NONZERO);
 		}
 		else
 		{
 			assert this.contourFlag == PathIterator.WIND_NON_ZERO;
-			this.glu.gluTessProperty(tobj, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD);
+			tobj.gluTessProperty(GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD);
 		}
 
-		this.glu.gluTessProperty(tobj, GLU.GLU_TESS_TOLERANCE, 0);
-		this.glu.gluTessNormal(tobj, 0.0f, 0.0f, zNormal);
-		this.glu.gluTessBeginPolygon(tobj, this.mesh);
+		tobj.gluTessProperty(GLU.GLU_TESS_TOLERANCE, 0);
+		tobj.gluTessNormal(0.0f, 0.0f, zNormal);
+		tobj.gluTessBeginPolygon(this.mesh);
 
 		for (int c = 0; c < this.contourCount(); ++c)
 		{
 			final FTContour contour = (FTContour)contourList.get(c);
 
-			this.glu.gluTessBeginContour(tobj);
+			tobj.gluTessBeginContour();
 
 			for (int p = 0; p < contour.pointCount(); ++p)
 			{
 				double[] v3d = contour.getPoint(p);
 				// point must be copied into a at least 3 component array
 				double[] d = new double[] { v3d[FTContour.X], v3d[FTContour.Y], 0};
-				this.glu.gluTessVertex(tobj, d, v3d);
+				tobj.gluTessVertex(d, 0, v3d);
 			}
 
-			this.glu.gluTessEndContour(tobj);
+			tobj.gluTessEndContour();
 		}
 
-		this.glu.gluTessEndPolygon(tobj);
+		tobj.gluTessEndPolygon();
 
-		this.glu.gluDeleteTess(tobj);
+		tobj.gluDeleteTess();
 	}
 
 	/**

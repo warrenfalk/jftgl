@@ -9,8 +9,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Iterator;
 
-import net.java.games.jogl.GL;
-import net.java.games.jogl.GLU;
 import net.sourceforge.ftgl.FTBBox;
 import net.sourceforge.ftgl.FTGlyphContainer;
 import net.sourceforge.ftgl.glyph.FTGlyph;
@@ -36,8 +34,8 @@ public abstract class FTFont
 												  'm', 'M', 'n', 'N', 'o', 'O', 'p', 'P', 'q', 'Q', 'r', 'R',
 												  's', 'S', 't', 'T', 'u', 'U', 'v', 'V', 'x', 'X', 'y', 'Y',
 												  'z', 'Z', '.', ':', ',', ';', '-', '+', '!', '?', '/', '\\',
-												  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'ß',
-												  'ä', 'Ä', 'ö', 'Ö', 'ü', 'Ü' };
+												  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'ï¿½',
+												  'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½' };
 
 	/**
 	 * This variable holds the standard FontRenderContext.
@@ -60,11 +58,6 @@ public abstract class FTFont
 
 	/** Current error code. Zero means no error. */
 	protected int err; // TODO was FT_ERROR
-
-	/** The gl context. */
-	protected GL gl;
-	/** The glu context. */
-	protected GLU glu;
 
 	private float ascender  = 0.0f;
 	private float descender = 0.0f;
@@ -118,30 +111,12 @@ public abstract class FTFont
 	{
 		this.glyphCache.clear();
 	}
-
-	/**
-	 * Returns the GL context of this FTFont object.
-	 * 
-	 * @return The GL context of this FTFont object.
-	 */
-	public GL getGL()
+	
+	public void init() // TODO: rename
 	{
-		return this.gl;
-	}
-
-	/**
-	 * Sets the gl context for this font and updates all glyphs of this font.
-	 * @param gl The new gl context.
-	 * @param glu The new glu context.
-	 */
-	public void setGLGLU(GL gl, GLU glu)
-	{
-		this.gl = gl;
-		this.glu = glu;
 		Iterator i = this.glyphCache.getGlyphs();
-		while(i.hasNext())
-		{
-			((FTGlyph) i.next()).setGLGLU(this.gl, this.glu);
+		while(i.hasNext()){
+			((FTGlyph) i.next()).init();
 		}
 	}
 
@@ -155,17 +130,6 @@ public abstract class FTFont
 	public void clearCache(boolean precache)
 	{
 		this.glyphCache.clear();
-		if (this.gl == null && this.glu == null && precache)
-			this.precache();
-	}
-
-	/**
-	 * Prechaches the most recently used chars
-	 */
-	private void precache()
-	{
-//		for (int i = 0; i < DEFAULTCHAR.length; i++)
-//			this.checkGlyph(DEFAULTCHAR[i]);
 	}
 
 	/**
@@ -287,7 +251,7 @@ public abstract class FTFont
 		{
 			Point2D p = vec.getGlyphPosition(i);
 			FTGlyph glyph = this.checkGlyph(vec.getGlyphCode(i), vec.getGlyphOutline(i, (float) -p.getX(), (float) p.getY()));
-			assert FTBBox.renderBBox(this.gl, new Vector3f((float)p.getX(), (float)p.getY(), 0), glyph.getBBox());
+			assert FTBBox.renderBBox(new Vector3f((float)p.getX(), (float)p.getY(), 0), glyph.getBBox());
 			glyph.render((float)p.getX(), (float)p.getY(), 0.0f);
 		}
 	}
@@ -322,7 +286,7 @@ public abstract class FTFont
 		if (glyph == null)
 		{
 			glyph = this.makeGlyph(outline, 0.0f);
-			if (this.gl != null) glyph.setGLGLU(this.getGL(), this.glu);
+			glyph.init();
 			this.glyphCache.add(glyph, glyphCode);
 			FTBBox box = glyph.getBBox();
 			if (this.ascender < box.upperY)  this.ascender  = box.upperY;

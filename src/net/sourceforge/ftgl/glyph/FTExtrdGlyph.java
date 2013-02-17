@@ -4,7 +4,8 @@ package net.sourceforge.ftgl.glyph;
 import java.awt.Shape;
 import java.awt.geom.PathIterator;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTContour;
 import net.sourceforge.ftgl.FTGlyphContainer;
 import net.sourceforge.ftgl.FTMesh;
@@ -48,10 +49,10 @@ public class FTExtrdGlyph extends FTGlyph
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	protected void createDisplayList()
 	{
 		FTVectoriser vectoriser = new FTVectoriser(this.glyph);
-		vectoriser.setGLGLU(this.gl, this.glu);
 
 		if ((vectoriser.contourCount() < 1) || (vectoriser.pointCount() < 3))
 		{
@@ -59,11 +60,13 @@ public class FTExtrdGlyph extends FTGlyph
 		}
 
 		int tesselationIndex;
-		this.glList = this.gl.glGenLists(1); // TODO verifyList();
-		this.gl.glNewList(this.glList, GL.GL_COMPILE);
+		this.glList = GL11.glGenLists(1);
+		GL11.glNewList(this.glList, GL11.GL_COMPILE);
+		if (!GL11.glIsList(glList))
+			System.err.println("WARNING: something went wrong creating display list");
 
 		vectoriser.makeMesh(1.0);
-		this.gl.glNormal3d(0.0, 0.0, 1.0);
+		GL11.glNormal3d(0.0, 0.0, 1.0);
 
 		FTMesh mesh = vectoriser.getMesh();
 		for (tesselationIndex = 0; tesselationIndex < mesh.tesselationCount(); ++tesselationIndex)
@@ -71,17 +74,18 @@ public class FTExtrdGlyph extends FTGlyph
 			FTTesselation subMesh = mesh.getTesselation(tesselationIndex);
 			int polygonType = subMesh.getPolygonType();
 
-			this.gl.glBegin(polygonType);
+			GL11.glBegin(polygonType);
 			for (int pointIndex = 0; pointIndex < subMesh.pointCount(); ++pointIndex)
 			{
-				this.gl.glVertex3f((float)subMesh.getPoint(pointIndex)[FTContour.X] /*/ 64.0f*/, // TODO 64?
-					(float)subMesh.getPoint(pointIndex)[FTContour.Y] /*/ 64.0f*/, 0.0f);
+				double[] point = subMesh.getPoint(pointIndex);
+				GL11.glVertex3f((float)point[FTContour.X] /*/ 64.0f*/, // TODO 64?
+					(float)point[FTContour.Y] /*/ 64.0f*/, 0.0f);
 			}
-			this.gl.glEnd();
+			GL11.glEnd();
 		}
 
 		vectoriser.makeMesh(-1.0);
-		this.gl.glNormal3d(0.0, 0.0, -1.0);
+		GL11.glNormal3d(0.0, 0.0, -1.0);
 
 		mesh = vectoriser.getMesh();
 		for (tesselationIndex = 0; tesselationIndex < mesh.tesselationCount(); ++tesselationIndex)
@@ -89,13 +93,13 @@ public class FTExtrdGlyph extends FTGlyph
 			FTTesselation subMesh = mesh.getTesselation(tesselationIndex);
 			int polygonType = subMesh.getPolygonType();
 
-			this.gl.glBegin(polygonType);
+			GL11.glBegin(polygonType);
 			for (int pointIndex = 0; pointIndex < subMesh.pointCount(); ++pointIndex)
 			{
-				this.gl.glVertex3f((float)subMesh.getPoint(pointIndex)[FTContour.X] /*/ 64.0f*/, // TODO 64?
+				GL11.glVertex3f((float)subMesh.getPoint(pointIndex)[FTContour.X] /*/ 64.0f*/, // TODO 64?
 					(float)subMesh.getPoint(pointIndex)[FTContour.Y] /*/ 64.0f*/, -this.depth);
 			}
-			this.gl.glEnd();
+			GL11.glEnd();
 		}
 
 		int contourFlag = vectoriser.contourFlag();
@@ -107,7 +111,7 @@ public class FTExtrdGlyph extends FTGlyph
 			int numberOfPoints = contour.pointCount();
 
 			Vector3f oldNormal = FTExtrdGlyph.getNormal(contour.getPoint(numberOfPoints-1), contour.getPoint(0));
-			this.gl.glBegin(GL.GL_QUAD_STRIP);
+			GL11.glBegin(GL11.GL_QUAD_STRIP);
 			for (int j = 0; j <= numberOfPoints; ++j)
 			{
 				int index = (j == numberOfPoints) ? 0 : j;
@@ -123,55 +127,55 @@ public class FTExtrdGlyph extends FTGlyph
 				else
 				{
 					normal = oldNormal;
-					this.gl.glNormal3f(normal.x, normal.y, 0.0f);
+					GL11.glNormal3f(normal.x, normal.y, 0.0f);
 					if (nonzero)// & ft_outline_reverse_fill) //FT_LIB
 					{
-						this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+						GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 							(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f); // TODO 64?
-						this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+						GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 							(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -this.depth);
 					}
 					else
 					{
-						this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+						GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 							(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -this.depth); // TODO 64?
-						this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+						GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 							(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f);
 					}
 					normal = flatNormal;
-					gl.glEnd();
-					gl.glBegin(GL.GL_QUAD_STRIP);
+					GL11.glEnd();
+					GL11.glBegin(GL11.GL_QUAD_STRIP);
 				}
 
-				this.gl.glNormal3f(normal.x, normal.y, 0.0f);
+				GL11.glNormal3f(normal.x, normal.y, 0.0f);
 				if (nonzero)// & ft_outline_reverse_fill) //FT_LIB
 				{
-					this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f); // TODO 64?
-					this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -this.depth);
 				}
 				else
 				{
-					this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -this.depth); // TODO 64?
-					this.gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f);
 				}
 				oldNormal = flatNormal;
 			}
-			this.gl.glEnd();
+			GL11.glEnd();
 			assert displayNormals(vectoriser);
 		}
-		this.gl.glEndList();
+		GL11.glEndList();
 	}
 
 	private boolean displayNormals(FTVectoriser vectoriser)
 	{
-		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_LIGHTING_BIT);
-		gl.glDisable(GL.GL_LIGHTING);
-		gl.glColor3f(1.0f, 0.0f, 0.0f);
-		gl.glBegin(GL.GL_LINES);
+		GL11.glPushAttrib(GL11.GL_CURRENT_BIT | GL11.GL_LIGHTING_BIT);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glColor3f(1.0f, 0.0f, 0.0f);
+		GL11.glBegin(GL11.GL_LINES);
 		for (int c = 0; c < vectoriser.contourCount(); ++c)
 		{
 			FTContour contour = vectoriser.contour(c);
@@ -192,14 +196,14 @@ public class FTExtrdGlyph extends FTGlyph
 				else
 				{
 					normal = new Vector3f(oldNormal).scale(4f, 4f, 0f);
-					gl.glNormal3f(normal.x, normal.y, 0.0f);
-					gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glNormal3f(normal.x, normal.y, 0.0f);
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f); // TODO 64?
-					gl.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y]+normal.y /*/ 64.0f*/, 0.0f); // TODO 64?
-					gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -depth);
-					gl.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
+					GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
 						(float)contour.getPoint(index)[FTContour.Y]+normal.y /*/ 64.0f*/, -depth);
 				}
 //				System.out.print("Contourflag:");
@@ -216,20 +220,20 @@ public class FTExtrdGlyph extends FTGlyph
 //						break;
 //				}
 				normal = new Vector3f(flatNormal).scale(4f, 4f, 0f);
-				gl.glNormal3f(normal.x, normal.y, 0.0f);
-				gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+				GL11.glNormal3f(normal.x, normal.y, 0.0f);
+				GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 					(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, 0.0f); // TODO 64?
-				gl.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
+				GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
 					(float)contour.getPoint(index)[FTContour.Y]+normal.y /*/ 64.0f*/, 0.0f); // TODO 64?
-				gl.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
+				GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X] /*/ 64.0f*/,
 					(float)contour.getPoint(index)[FTContour.Y] /*/ 64.0f*/, -depth);
-				gl.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
+				GL11.glVertex3f((float)contour.getPoint(index)[FTContour.X]+normal.x /*/ 64.0f*/,
 					(float)contour.getPoint(index)[FTContour.Y]+normal.y /*/ 64.0f*/, -depth);
 				oldNormal = flatNormal;
 			}
 		}
-		gl.glEnd();
-		gl.glPopAttrib();
+		GL11.glEnd();
+		GL11.glPopAttrib();
 		return true;
 	}
 
@@ -272,11 +276,11 @@ public class FTExtrdGlyph extends FTGlyph
 	 */
 	public float render(final float x, final float y, final float z)
 	{
-		if (this.gl.glIsList(this.glList))
+		if (GL11.glIsList(this.glList))
 		{
-			this.gl.glTranslatef((float)x, (float)y, 0);
-			this.gl.glCallList(this.glList);
-			this.gl.glTranslatef((float)-x, (float)-y, 0);
+			GL11.glTranslatef((float)x, (float)y, 0);
+			GL11.glCallList(this.glList);
+			GL11.glTranslatef((float)-x, (float)-y, 0);
 		}
 		return advance;
 	}

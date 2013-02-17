@@ -5,7 +5,8 @@ import java.awt.Font;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.glyph.FTGlyph;
 import net.sourceforge.ftgl.glyph.FTOutlineGlyph;
 
@@ -68,18 +69,18 @@ public class FTGLOutlineFont extends FTFont
 	 */
 	public void render(String string)
 	{
-		this.gl.glPushAttrib(GL.GL_ENABLE_BIT | GL.GL_HINT_BIT | GL.GL_LINE_BIT | GL.GL_COLOR_BUFFER_BIT);
+		GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_HINT_BIT | GL11.GL_LINE_BIT | GL11.GL_COLOR_BUFFER_BIT);
 
-		this.gl.glDisable(GL.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-		this.gl.glEnable(GL.GL_LINE_SMOOTH);
-		this.gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_DONT_CARE);
-		this.gl.glEnable(GL.GL_BLEND);
-		this.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA); // GL_ONE
+		GL11.glEnable(GL11.GL_LINE_SMOOTH);
+		GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_DONT_CARE);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA); // GL_ONE
 
 		super.render(string);
 
-		this.gl.glPopAttrib();
+		GL11.glPopAttrib();
 
 	}
 

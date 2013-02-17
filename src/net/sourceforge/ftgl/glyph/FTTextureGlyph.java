@@ -7,8 +7,11 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTGlyphContainer;
 import net.sourceforge.ftgl.util.Vector3f;
 
@@ -118,15 +121,17 @@ public class FTTextureGlyph extends FTGlyph
 
 		if(this.destWidth != 0 && this.destHeight != 0)
 		{
-			this.gl.glPushClientAttrib( GL.GL_CLIENT_PIXEL_STORE_BIT);
-			this.gl.glPixelStorei(GL.GL_UNPACK_LSB_FIRST, GL.GL_FALSE);
-			this.gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
-			this.gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+			GL11.glPushClientAttrib( GL11.GL_CLIENT_PIXEL_STORE_BIT);
+			GL11.glPixelStorei(GL11.GL_UNPACK_LSB_FIRST, GL11.GL_FALSE);
+			GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+			GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
 
-			this.gl.glBindTexture(GL.GL_TEXTURE_2D, this.glTextureID);
-			this.gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, this.xOffset, this.yOffset, this.destWidth, this.destHeight, GL.GL_ALPHA, GL.GL_UNSIGNED_BYTE, array);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.glTextureID);
+			ByteBuffer bb = ByteBuffer.allocateDirect(array.length).order(ByteOrder.LITTLE_ENDIAN);
+			bb.put(array).flip();
+			GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, this.xOffset, this.yOffset, this.destWidth, this.destHeight, GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE, bb);
 
-			this.gl.glPopClientAttrib();
+			GL11.glPopClientAttrib();
 //		      0
 //		      +----+
 //		      |    |
@@ -156,25 +161,25 @@ public class FTTextureGlyph extends FTGlyph
 	{
 		if (this.destWidth == 0 || this.destHeight == 0) return this.advance;
 
-		this.gl.glGetIntegerv(GL.GL_TEXTURE_2D_BINDING_EXT, this.activeTextureID);
+		activeTextureID[0] = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 		if(this.activeTextureID[0] != this.glTextureID)
 		{
-			this.gl.glBindTexture(GL.GL_TEXTURE_2D, this.glTextureID);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, this.glTextureID);
 		}
 
-		this.gl.glBegin(GL.GL_QUADS);
-		this.gl.glTexCoord2f( this.uv[0].x, this.uv[0].y);
-		this.gl.glVertex2f( (float)x + this.pos.x, (float)y + this.pos.y);
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glTexCoord2f( this.uv[0].x, this.uv[0].y);
+		GL11.glVertex2f( (float)x + this.pos.x, (float)y + this.pos.y);
 
-		this.gl.glTexCoord2f(this.uv[0].x, this.uv[1].y);
-		this.gl.glVertex2f((float)x + this.pos.x, (float)y + this.pos.y - this.destHeight);
+		GL11.glTexCoord2f(this.uv[0].x, this.uv[1].y);
+		GL11.glVertex2f((float)x + this.pos.x, (float)y + this.pos.y - this.destHeight);
 
-		this.gl.glTexCoord2f(this.uv[1].x, this.uv[1].y);
-		this.gl.glVertex2f((float)x + this.destWidth + this.pos.x, (float)y + this.pos.y - this.destHeight);
+		GL11.glTexCoord2f(this.uv[1].x, this.uv[1].y);
+		GL11.glVertex2f((float)x + this.destWidth + this.pos.x, (float)y + this.pos.y - this.destHeight);
 
-		this.gl.glTexCoord2f(this.uv[1].x, this.uv[0].y);
-		this.gl.glVertex2f((float)x + this.destWidth + this.pos.x, (float)y + this.pos.y);
-		this.gl.glEnd();
+		GL11.glTexCoord2f(this.uv[1].x, this.uv[0].y);
+		GL11.glVertex2f((float)x + this.destWidth + this.pos.x, (float)y + this.pos.y);
+		GL11.glEnd();
 
 		return this.advance;
 	}

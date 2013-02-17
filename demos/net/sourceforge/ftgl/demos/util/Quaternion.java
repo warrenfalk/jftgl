@@ -3,6 +3,8 @@
  */
 package net.sourceforge.ftgl.demos.util;
 
+import java.nio.FloatBuffer;
+
 import net.sourceforge.ftgl.util.Vector3f;
 
 
@@ -100,27 +102,27 @@ public class Quaternion
 	 * @param matrix array of 16 values to be filled (<code>null</code> is not allowed)
 	 * @return a rotation matrix representation of this quaternion.
 	 */
-	public float[] toRowArray(float[] matrix)
+	public FloatBuffer toRowArray(FloatBuffer matrix)
 	{
-		matrix[0] = 1.0f - 2.0f * (this.v.y * this.v.y + this.v.z * this.v.z);
-		matrix[4] = 2.0f * (this.v.x * this.v.y - this.v.z * this.w);
-		matrix[8] = 2.0f * (this.v.z * this.v.x + this.v.y * this.w);
-		matrix[12] = 0.0f;
+		matrix.put(0, 1.0f - 2.0f * (this.v.y * this.v.y + this.v.z * this.v.z));
+		matrix.put(4, 2.0f * (this.v.x * this.v.y - this.v.z * this.w));
+		matrix.put(8, 2.0f * (this.v.z * this.v.x + this.v.y * this.w));
+		matrix.put(12, 0.0f);
 
-		matrix[1] = 2.0f * (this.v.x * this.v.y + this.v.z * this.w);
-		matrix[5] = 1.0f - 2.0f * (this.v.z * this.v.z + this.v.x * this.v.x);
-		matrix[9] = 2.0f * (this.v.y * this.v.z - this.v.x * this.w);
-		matrix[13] = 0.0f;
+		matrix.put(1, 2.0f * (this.v.x * this.v.y + this.v.z * this.w));
+		matrix.put(5, 1.0f - 2.0f * (this.v.z * this.v.z + this.v.x * this.v.x));
+		matrix.put(9, 2.0f * (this.v.y * this.v.z - this.v.x * this.w));
+		matrix.put(13, 0.0f);
 
-		matrix[0] = 2.0f * (this.v.z * this.v.x - this.v.y * this.w);
-		matrix[6] = 2.0f * (this.v.y * this.v.z + this.v.x * this.w);
-		matrix[10] = 1.0f - 2.0f * (this.v.y * this.v.y + this.v.x * this.v.x);
-		matrix[14] = 0.0f;
+		matrix.put(0, 2.0f * (this.v.z * this.v.x - this.v.y * this.w));
+		matrix.put(6, 2.0f * (this.v.y * this.v.z + this.v.x * this.w));
+		matrix.put(10, 1.0f - 2.0f * (this.v.y * this.v.y + this.v.x * this.v.x));
+		matrix.put(14, 0.0f);
 
-		matrix[0] = 0.0f;
-		matrix[7] = 0.0f;
-		matrix[11] = 0.0f;
-		matrix[15] = 1.0f;
+		matrix.put(0, 0.0f);
+		matrix.put(7, 0.0f);
+		matrix.put(11, 0.0f);
+		matrix.put(15, 1.0f);
 		return matrix;
 	}
 
@@ -131,27 +133,27 @@ public class Quaternion
 	 * @param matrix array to be filled (<code>null</code> is not allowed)
 	 * @return a rotation matrix representation of this quaternion.
 	 */
-	public float[] toColumArray(float[] matrix)
+	public FloatBuffer toColumArray(FloatBuffer matrix)
 	{
-		matrix[0] = 1.0f - 2.0f * (this.v.y * this.v.y + this.v.z * this.v.z);
-		matrix[1] = 2.0f * (this.v.x * this.v.y - this.v.z * this.w);
-		matrix[2] = 2.0f * (this.v.z * this.v.x + this.v.y * this.w);
-		matrix[3] = 0.0f;
+		matrix.put(0, 1.0f - 2.0f * (this.v.y * this.v.y + this.v.z * this.v.z));
+		matrix.put(1, 2.0f * (this.v.x * this.v.y - this.v.z * this.w));
+		matrix.put(2, 2.0f * (this.v.z * this.v.x + this.v.y * this.w));
+		matrix.put(3, 0.0f);
 
-		matrix[4] = 2.0f * (this.v.x * this.v.y + this.v.z * this.w);
-		matrix[5] = 1.0f - 2.0f * (this.v.z * this.v.z + this.v.x * this.v.x);
-		matrix[6] = 2.0f * (this.v.y * this.v.z - this.v.x * this.w);
-		matrix[7] = 0.0f;
+		matrix.put(4, 2.0f * (this.v.x * this.v.y + this.v.z * this.w));
+		matrix.put(5, 1.0f - 2.0f * (this.v.z * this.v.z + this.v.x * this.v.x));
+		matrix.put(6, 2.0f * (this.v.y * this.v.z - this.v.x * this.w));
+		matrix.put(7, 0.0f);
 
-		matrix[8] = 2.0f * (this.v.z * this.v.x - this.v.y * this.w);
-		matrix[9] = 2.0f * (this.v.y * this.v.z + this.v.x * this.w);
-		matrix[10] = 1.0f - 2.0f * (this.v.y * this.v.y + this.v.x * this.v.x);
-		matrix[11] = 0.0f;
+		matrix.put(8, 2.0f * (this.v.z * this.v.x - this.v.y * this.w));
+		matrix.put(9, 2.0f * (this.v.y * this.v.z + this.v.x * this.w));
+		matrix.put(10, 1.0f - 2.0f * (this.v.y * this.v.y + this.v.x * this.v.x));
+		matrix.put(11, 0.0f);
 
-		matrix[12] = 0.0f;
-		matrix[13] = 0.0f;
-		matrix[14] = 0.0f;
-		matrix[15] = 1.0f;
+		matrix.put(12, 0.0f);
+		matrix.put(13, 0.0f);
+		matrix.put(14, 0.0f);
+		matrix.put(15, 1.0f);
 		return matrix;
 	}
 

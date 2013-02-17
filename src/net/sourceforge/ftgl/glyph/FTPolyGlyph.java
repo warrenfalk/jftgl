@@ -3,7 +3,8 @@ package net.sourceforge.ftgl.glyph;
 
 import java.awt.Shape;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTContour;
 import net.sourceforge.ftgl.FTGlyphContainer;
 import net.sourceforge.ftgl.FTMesh;
@@ -50,7 +51,6 @@ public class FTPolyGlyph extends FTGlyph
 	protected void createDisplayList()
 	{
 		FTVectoriser vectoriser = new FTVectoriser(this.glyph);
-		vectoriser.setGLGLU(this.gl, this.glu);
 
 		if ((vectoriser.contourCount() < 1) || (vectoriser.pointCount() < 3))
 		{
@@ -59,10 +59,10 @@ public class FTPolyGlyph extends FTGlyph
 
 		vectoriser.makeMesh(1.0);
 
-		this.glList = this.gl.glGenLists(1);			//TODO verify list!
-		this.gl.glNewList(this.glList, GL.GL_COMPILE);
+		this.glList = GL11.glGenLists(1);
+		GL11.glNewList(this.glList, GL11.GL_COMPILE);
 
-		this.gl.glNormal3d(0.0, 0.0, 1.0);
+		GL11.glNormal3d(0.0, 0.0, 1.0);
 
 		final FTMesh mesh = vectoriser.getMesh();
 		for (int index = 0; index < mesh.tesselationCount(); ++index)
@@ -70,14 +70,14 @@ public class FTPolyGlyph extends FTGlyph
 			final FTTesselation subMesh = mesh.getTesselation(index);
 			int polyonType = subMesh.getPolygonType();
 
-			this.gl.glBegin(polyonType);
+			GL11.glBegin(polyonType);
 			for (int x = 0; x < subMesh.pointCount(); ++x)
 			{
-				this.gl.glVertex3f((float) subMesh.getPoint(x)[FTContour.X] /*/ 64.0f */, (float) subMesh.getPoint(x)[FTContour.Y] /*/ 64.0f */, 0.0f);
+				GL11.glVertex3f((float) subMesh.getPoint(x)[FTContour.X] /*/ 64.0f */, (float) subMesh.getPoint(x)[FTContour.Y] /*/ 64.0f */, 0.0f);
 			}
-			this.gl.glEnd();
+			GL11.glEnd();
 		}
-		this.gl.glEndList();
+		GL11.glEndList();
 	}
 
 	/**
@@ -85,11 +85,11 @@ public class FTPolyGlyph extends FTGlyph
 	 */
 	public float render(final float x, final float y, final float z)
 	{
-		if (this.gl.glIsList(glList))
+		if (GL11.glIsList(glList))
 		{
-			this.gl.glTranslatef((float) x, (float) y, 0.0f);
-			this.gl.glCallList(glList);
-			this.gl.glTranslatef((float) -x, (float) -y, 0.0f);
+			GL11.glTranslatef((float) x, (float) y, 0.0f);
+			GL11.glCallList(glList);
+			GL11.glTranslatef((float) -x, (float) -y, 0.0f);
 		}
 
 		return advance;

@@ -3,14 +3,14 @@
  */
 package net.sourceforge.ftgl;
 
-import net.java.games.jogl.GLUtesselatorCallbackAdapter;
+import org.lwjgl.util.glu.GLUtessellatorCallbackAdapter;
 
 /**
  * This is class contains all previously separate tesselation callbacks.
  * JOGL requires these callbacks to be combined in a class.
  * @author joda
  */
-public class FTTesselatorCallback extends GLUtesselatorCallbackAdapter
+public class FTTesselatorCallback extends GLUtessellatorCallbackAdapter
 {
 	/**
 	 * {@inheritDoc}

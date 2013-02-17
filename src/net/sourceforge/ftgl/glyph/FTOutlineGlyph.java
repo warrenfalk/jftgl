@@ -3,7 +3,8 @@ package net.sourceforge.ftgl.glyph;
 
 import java.awt.Shape;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTContour;
 import net.sourceforge.ftgl.FTGlyphContainer;
 import net.sourceforge.ftgl.FTVectoriser;
@@ -43,7 +44,6 @@ public class FTOutlineGlyph extends FTGlyph
 	protected void createDisplayList()
 	{
 		FTVectoriser vectoriser = new FTVectoriser(this.glyph);
-		vectoriser.setGLGLU(this.gl, this.glu);
 
 		int numContours = vectoriser.contourCount();
 		if ((numContours < 1) || (vectoriser.pointCount() < 3))
@@ -51,20 +51,20 @@ public class FTOutlineGlyph extends FTGlyph
 			return;
 		}
 
-		this.glList = this.gl.glGenLists(1); // TODO verifyList!
-		this.gl.glNewList(this.glList, GL.GL_COMPILE);
+		this.glList = GL11.glGenLists(1);
+		GL11.glNewList(this.glList, GL11.GL_COMPILE);
 		for (int c = 0; c < numContours; ++c)
 		{
 			final FTContour contour = vectoriser.contour(c);
 
-			this.gl.glBegin(GL.GL_LINE_LOOP);
+			GL11.glBegin(GL11.GL_LINE_LOOP);
 			for (int p = 0; p < contour.pointCount(); ++p)
 			{
-				this.gl.glVertex2f((float)contour.getPoint(p)[FTContour.X] /* / 64.0f */, (float)contour.getPoint(p)[FTContour.Y] /*/64.0f*/);
+				GL11.glVertex2f((float)contour.getPoint(p)[FTContour.X] /* / 64.0f */, (float)contour.getPoint(p)[FTContour.Y] /*/64.0f*/);
 			}
-			this.gl.glEnd();
+			GL11.glEnd();
 		}
-		this.gl.glEndList();
+		GL11.glEndList();
 	}
 
 	/**
@@ -72,11 +72,11 @@ public class FTOutlineGlyph extends FTGlyph
 	 */
 	public float render(final float x, final float y, final float z)
 	{
-		if (this.gl.glIsList(this.glList))
+		if (GL11.glIsList(this.glList))
 		{
-			this.gl.glTranslatef((float)x, (float)y, 0.0f);
-			this.gl.glCallList(this.glList);
-			this.gl.glTranslatef((float)-x, (float)-y, 0.0f);
+			GL11.glTranslatef((float)x, (float)y, 0.0f);
+			GL11.glCallList(this.glList);
+			GL11.glTranslatef((float)-x, (float)-y, 0.0f);
 		}
 
 		return advance;

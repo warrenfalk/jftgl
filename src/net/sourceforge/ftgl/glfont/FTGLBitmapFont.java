@@ -5,7 +5,8 @@ import java.awt.Font;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.glyph.FTBitmapGlyph;
 import net.sourceforge.ftgl.glyph.FTGlyph;
 
@@ -70,18 +71,18 @@ public class FTGLBitmapFont extends FTFont
 	 */
 	public void render(String string)
 	{
-		this.gl.glPushClientAttrib(GL.GL_CLIENT_PIXEL_STORE_BIT);
-		this.gl.glPushAttrib(GL.GL_ENABLE_BIT);
+		GL11.glPushClientAttrib(GL11.GL_CLIENT_PIXEL_STORE_BIT);
+		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 
-		this.gl.glPixelStorei(GL.GL_UNPACK_LSB_FIRST, GL.GL_FALSE);
-		this.gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+		GL11.glPixelStorei(GL11.GL_UNPACK_LSB_FIRST, GL11.GL_FALSE);
+		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
 
-		this.gl.glDisable(GL.GL_BLEND);
+		GL11.glDisable(GL11.GL_BLEND);
 
 		super.render(string);
 
-		this.gl.glPopAttrib();
-		this.gl.glPopClientAttrib();
+		GL11.glPopAttrib();
+		GL11.glPopClientAttrib();
 	}
 
 	/**

@@ -4,7 +4,8 @@ package net.sourceforge.ftgl;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.util.Vector3f;
 
 /**
@@ -148,50 +149,48 @@ public class FTBBox
 					  this.upperX + "|" + this.upperY + "|" + this.upperZ + "]";
 	}
 
-	public static boolean renderBBox(GL gl, Vector3f pos, FTBBox box)
+	public static boolean renderBBox(Vector3f pos, FTBBox box)
 	{
-		gl.glPushMatrix();
-		gl.glTranslated(pos.x, pos.y, pos.z);
-		gl.glBitmap(0, 0, 0f, 0f, pos.x, pos.y, (byte[])null);
+		GL11.glPushMatrix();
+		GL11.glTranslated(pos.x, pos.y, pos.z);
+		//GL11.glBitmap(0, 0, 0f, 0f, pos.x, pos.y, null);
 		//TODO: Move to correct raster position
-		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_LIGHTING_BIT | GL.GL_COLOR_BUFFER_BIT);
-		gl.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-		gl.glDisable(GL.GL_LIGHTING);
-		gl.glDisable(GL.GL_BLEND);
+		GL11.glPushAttrib(GL11.GL_CURRENT_BIT | GL11.GL_LIGHTING_BIT | GL11.GL_COLOR_BUFFER_BIT);
+		GL11.glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_BLEND);
 		// Draw the front face
-		gl.glBegin(GL.GL_LINE_LOOP);
-		gl.glVertex3f(box.lowerX, box.lowerY, box.lowerZ);
-		gl.glVertex3f(box.lowerX, box.upperY, box.lowerZ);
-		gl.glVertex3f(box.upperX, box.upperY, box.lowerZ);
-		gl.glVertex3f(box.upperX, box.lowerY, box.lowerZ);
-		gl.glEnd();
+		GL11.glBegin(GL11.GL_LINE_LOOP);
+		GL11.glVertex3f(box.lowerX, box.lowerY, box.lowerZ);
+		GL11.glVertex3f(box.lowerX, box.upperY, box.lowerZ);
+		GL11.glVertex3f(box.upperX, box.upperY, box.lowerZ);
+		GL11.glVertex3f(box.upperX, box.lowerY, box.lowerZ);
+		GL11.glEnd();
 		// Draw the back face
 		if (box.lowerZ != box.upperZ)
 		{
-			gl.glBegin(GL.GL_LINE_LOOP);
-			gl.glVertex3f(box.lowerX, box.lowerY, box.upperZ);
-			gl.glVertex3f(box.lowerX, box.upperY, box.upperZ);
-			gl.glVertex3f(box.upperX, box.upperY, box.upperZ);
-			gl.glVertex3f(box.upperX, box.lowerY, box.upperZ);
-			gl.glEnd();
-			// Join the faces
-			gl.glBegin(GL.GL_LINES);
-			gl.glVertex3f(box.lowerX, box.lowerY, box.lowerZ);
-			gl.glVertex3f(box.lowerX, box.lowerY, box.upperZ);
+			GL11.glBegin(GL11.GL_LINE_LOOP);
+			GL11.glVertex3f(box.lowerX, box.lowerY, box.upperZ);
+			GL11.glVertex3f(box.lowerX, box.upperY, box.upperZ);
+			GL11.glVertex3f(box.upperX, box.upperY, box.upperZ);
+			GL11.glVertex3f(box.upperX, box.lowerY, box.upperZ);
+			GL11.glBegin(GL11.GL_LINES);
+			GL11.glVertex3f(box.lowerX, box.lowerY, box.lowerZ);
+			GL11.glVertex3f(box.lowerX, box.lowerY, box.upperZ);
 
-			gl.glVertex3f(box.lowerX, box.upperY, box.lowerZ);
-			gl.glVertex3f(box.lowerX, box.upperY, box.upperZ);
+			GL11.glVertex3f(box.lowerX, box.upperY, box.lowerZ);
+			GL11.glVertex3f(box.lowerX, box.upperY, box.upperZ);
 
-			gl.glVertex3f(box.upperX, box.upperY, box.lowerZ);
-			gl.glVertex3f(box.upperX, box.upperY, box.upperZ);
+			GL11.glVertex3f(box.upperX, box.upperY, box.lowerZ);
+			GL11.glVertex3f(box.upperX, box.upperY, box.upperZ);
 
-			gl.glVertex3f(box.upperX, box.lowerY, box.lowerZ);
-			gl.glVertex3f(box.upperX, box.lowerY, box.upperZ);
-			gl.glEnd();
+			GL11.glVertex3f(box.upperX, box.lowerY, box.lowerZ);
+			GL11.glVertex3f(box.upperX, box.lowerY, box.upperZ);
+			GL11.glEnd();
 		}
-		gl.glPopAttrib();
-		gl.glPopMatrix();
-		gl.glBitmap(0, 0, 0f, 0f, -pos.x, -pos.y, (byte[])null);
+		GL11.glPopAttrib();
+		GL11.glPopMatrix();
+		//GL11.glBitmap(0, 0, 0f, 0f, -pos.x, -pos.y, null);
 		return true;
 	}
 

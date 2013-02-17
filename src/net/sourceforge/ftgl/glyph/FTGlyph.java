@@ -4,8 +4,8 @@ package net.sourceforge.ftgl.glyph;
 import java.awt.Shape;
 import java.awt.font.ShapeGraphicAttribute;
 
-import net.java.games.jogl.GL;
-import net.java.games.jogl.GLU;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTBBox;
 import net.sourceforge.ftgl.FTGlyphContainer;
 
@@ -25,11 +25,6 @@ public abstract class FTGlyph
 	protected int err = 0;
 	protected Shape glyph;
 
-	/** the glcontext to render with. */
-	protected GL gl;
-	/** the glucontext to render with. */
-	protected GLU glu;
-	/** the identifier of the displaylist used by this FTGlyph. */
 	protected int glList = -1;
 
 	/**
@@ -72,29 +67,14 @@ public abstract class FTGlyph
 	 */
 	public void dispose()
 	{
-		if (this.gl != null && this.gl.glIsList(this.glList))
-			this.gl.glDeleteLists(this.glList, 1);
+		if (GL11.glIsList(this.glList))
+			GL11.glDeleteLists(this.glList, 1);
 	}
-
-	/**
-	 * Returns the gl context of this FTGlyph.
-	 * @return The gl context of this FTGlyph.
-	 */
-	public GL getGL()
+	
+	public void init()
 	{
-		return this.gl;
-	}
-
-	/**
-	 * Sets the gl context for this FTGlyph.
-	 * @param gl The new gl context.
-	 * @param glu The new glu context.
-	 */
-	public void setGLGLU(GL gl, GLU glu)
-	{
-		assert gl != null && glu != null : "GL and GLU shouldnt be null";
-		this.gl  = gl;
-		this.glu = glu;
+		if (GL11.glIsList(this.glList))
+			GL11.glDeleteLists(this.glList,  1);
 		this.createDisplayList();
 	}
 

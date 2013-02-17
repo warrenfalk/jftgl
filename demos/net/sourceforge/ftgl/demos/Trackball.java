@@ -6,9 +6,8 @@ package net.sourceforge.ftgl.demos;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.nio.FloatBuffer;
 
-import net.java.games.jogl.GL;
-import net.java.games.jogl.GLDrawable;
 import net.sourceforge.ftgl.demos.util.Quaternion;
 import net.sourceforge.ftgl.util.Vector3f;
 
@@ -119,7 +118,7 @@ public class Trackball extends MouseAdapter implements MouseMotionListener
 	}
 
 
-	public float[] tbMatrix(float[] matrix)
+	public FloatBuffer tbMatrix(FloatBuffer matrix)
 	{
 		return this.curquat.toColumArray(matrix);
 	}
@@ -133,29 +132,20 @@ public class Trackball extends MouseAdapter implements MouseMotionListener
 	/**
 	 * {@inheritDoc}
 	 */
-	public void mouseDragged(MouseEvent e)
+	public void mouseMoved(int x, int y, int dx, int dy)
 	{
 		  if (tb_tracking)
 		  {
 			trackball(lastquat,
 			  (2.0f * beginx - tb_width) / tb_width,
 			  (tb_height - 2.0f * beginy) / tb_height,
-			  (2.0f * e.getX() - tb_width) / tb_width,
-			  (tb_height - 2.0f * e.getY()) / tb_height
+			  (2.0f * x - tb_width) / tb_width,
+			  (tb_height - 2.0f * y) / tb_height
 			);
-			beginx = e.getX();
-			beginy = e.getY();
+			beginx = x;
+			beginy = y;
 			this.curquat.add(this.lastquat);
 		  }
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * <p>Note: replacement for tbMotion
-	 */
-	public void mouseMoved(MouseEvent e)
-	{
-		// nothing
 	}
 
 	void _tbStartMotion(int x, int y)
@@ -174,19 +164,19 @@ public class Trackball extends MouseAdapter implements MouseMotionListener
 	 * {@inheritDoc}
 	 * <p>Note: replacement for tbMouse(int button...)
 	 */
-	public void mousePressed(MouseEvent e)
+	public void mousePressed(int button, int x, int y)
 	{
-		  if (e.getButton() == this.tb_button)
-			_tbStartMotion(e.getX(), e.getY());
+		  if (button == this.tb_button)
+			_tbStartMotion(x, y);
 	}
 	/**
 	 * {@inheritDoc}
 	 * <p>Note: replacement for tbMouse(int button...)
 	 */
-	public void mouseReleased(MouseEvent e)
+	public void mouseReleased(int button, int x, int y)
 	{
 		  //else if (state == GLUT_UP && button == tb_button)
-		if (e.getButton() == this.tb_button)
+		if (button == this.tb_button)
 			_tbStopMotion();
 	}
 

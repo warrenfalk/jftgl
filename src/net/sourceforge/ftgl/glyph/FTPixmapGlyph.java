@@ -13,8 +13,9 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
 
 /**
  * FTPixmapGlyph is a specialisation of FTGlyph for creating pixmaps.
@@ -78,14 +79,16 @@ public class FTPixmapGlyph extends FTGlyph
 			g2d.translate(-bounds.getX(),-bounds.getY());
 			g2d.fill(this.glyph);
 
-			this.data = ByteBuffer.allocateDirect(destWidth * destHeight * 4);
+			this.data = ByteBuffer.allocateDirect(destWidth * destHeight * 4).order(ByteOrder.LITTLE_ENDIAN);
 			this.data.order(ByteOrder.BIG_ENDIAN);
 
 			int[] line = new int[this.destWidth];
 
 			// Get the current glColor.
 			float[] ftglColour = new float[4];
-			this.gl.glGetFloatv( GL.GL_CURRENT_COLOR, ftglColour);
+			FloatBuffer fb = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+			GL11.glGetFloat( GL11.GL_CURRENT_COLOR, fb);
+			fb.get(ftglColour);
 
 			byte redComponent =   (byte)(ftglColour[0] * 255.0f + 0.5f);
 			byte greenComponent = (byte)(ftglColour[1] * 255.0f + 0.5f);
@@ -130,6 +133,7 @@ public class FTPixmapGlyph extends FTGlyph
 					}
 				}
 			}
+			this.data.flip();
 		}
 	}
 
@@ -167,14 +171,14 @@ public class FTPixmapGlyph extends FTGlyph
 		if( this.data!=null)
 		{
 			// Move the glyph origin
-			this.gl.glBitmap( 0, 0, 0.0f, 0.0f, (float)x + this.offsetX, (float)y + this.offsetY, (byte[])null);
+			GL11.glBitmap( 0, 0, 0.0f, 0.0f, (float)x + this.offsetX, (float)y + this.offsetY, this.data); // TODO: used to pass null, but now passing this.data -- not sure if correct
 
-			this.gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+			GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
 
-			this.gl.glDrawPixels( destWidth, destHeight, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, this.data);
+			GL11.glDrawPixels( destWidth, destHeight, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, this.data);
 
 			// Restore the glyph origin
-			this.gl.glBitmap( 0, 0, 0.0f, 0.0f, (float)-x - this.offsetX, (float)-y - this.offsetY, (byte[])null);
+			GL11.glBitmap( 0, 0, 0.0f, 0.0f, (float)-x - this.offsetX, (float)-y - this.offsetY, this.data); // TODO: used to pass null, but now passing this.data -- not sure if correct
 		}
 
 		return advance;

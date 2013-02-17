@@ -10,8 +10,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-import net.java.games.jogl.GL;
+import org.lwjgl.opengl.GL11;
+
 import net.sourceforge.ftgl.FTGlyphContainer;
 
 /**
@@ -97,7 +99,7 @@ public class FTBitmapGlyph extends FTGlyph
 			int[] line1 = new int[lineWidth*8];
 			byte[] line2 = new byte[lineWidth];
 
-			this.data = ByteBuffer.allocateDirect(lineWidth * destHeight);
+			this.data = ByteBuffer.allocateDirect(lineWidth * destHeight).order(ByteOrder.LITTLE_ENDIAN);
 
 			for(int i = 0; i < this.destHeight; i++)
 			{
@@ -145,12 +147,13 @@ public class FTBitmapGlyph extends FTGlyph
 	{
 		if(data != null)
 		{
-			this.gl.glBitmap(0, 0, 0.0f, 0.0f, (float) (x + this.offsetX), (float) (y - this.offsetY), (byte []) null );
+			//GL11.glBitmap(0, 0, 0.0f, 0.0f, (float) (x + this.offsetX), (float) (y - this.offsetY), null );
 
-			this.gl.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, destPitch);
-			this.gl.glBitmap(destWidth, destHeight, 0.0f, 0.0f, 0.0f, 0.0f, data);
+			GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, destPitch);
+			data.rewind();
+			GL11.glBitmap(destWidth, destHeight, 0.0f, 0.0f, 0.0f, 0.0f, data);
 
-			this.gl.glBitmap(0, 0, 0.0f, 0.0f, (float) (-x - this.offsetX), (float) (-y + this.offsetY), (byte []) null );
+			//GL11.glBitmap(0, 0, 0.0f, 0.0f, (float) (-x - this.offsetX), (float) (-y + this.offsetY), null );
 		}
 
 		return advance;
